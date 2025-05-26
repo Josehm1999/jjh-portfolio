@@ -1,26 +1,25 @@
 ---
-import "../styles/index.css";
+import '../../styles/index.css';
 
-import ProfilePicture from "../assets/pfp.png";
+import ProfilePicture from '../../assets/pfp.png';
 
-import Card from "../components/Card.astro";
-import Layout from "../layouts/Layout.astro";
-import ImageGlow from "../components/ImageGlow.astro";
-import Icon from "../components/Icon.astro";
-import { getCollection } from "astro:content";
-import { getEntry } from "astro:content";
-import { render } from "astro:content";
-import { name, openGraph } from "spectre:globals";
+import Card from '../../components/Card.astro';
+import Layout from '../../layouts/Layout.astro';
+import ImageGlow from '../../components/ImageGlow.astro';
+import Icon from '../../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import { getEntry } from 'astro:content';
+import { render } from 'astro:content';
+import { name, openGraph } from 'spectre:globals';
 
-const [posts, projects, about, workExperience, quickInfo, socials] =
-	await Promise.all([
-		getCollection("posts", (post) => post.data.draft !== true),
-		getCollection("projects"),
-		getEntry("other", "about"),
-		getCollection("workExperience"),
-		getCollection("quickInfo"),
-		getCollection("socials"),
-	]);
+const [posts, projects, about, workExperience, quickInfo, socials] = await Promise.all([
+	getCollection('posts_es', (post) => post.data.draft !== true),
+	getCollection('projects_es'),
+	getEntry('other_es', 'about_es'),
+	getCollection('workExperience_es'),
+	getCollection('quickInfo_es'),
+	getCollection('socials')
+]);
 
 // biome-ignore lint/style/noNonNullAssertion: Should always be defined.
 const { Content: About } = await render(about!);
@@ -29,12 +28,12 @@ const { Content: About } = await render(about!);
 <Layout
 	title={openGraph.home.title || name}
 	description={openGraph.home.description}
+    lang='es'
 	pagefindIgnore
-    lang='en'
 >
 	<div class="layout-grid-left" slot="left">
 		<Card class="flex-col-card">
-			<ImageGlow quality={100} width={80} height={80} src={ProfilePicture} alt="Louis looking out of a window" loading='eager' />
+			<ImageGlow quality={100} width={80} height={80} src={ProfilePicture} alt="Louis mirando por una ventana" loading='eager' />
 			<h2>{name}</h2>
 			<ul class="overview-list">
 				{quickInfo.map((info) => (
@@ -46,7 +45,7 @@ const { Content: About } = await render(about!);
 			</ul>
 		</Card>
 		<Card>
-			<h3 class="no-mt">Socials</h3>
+			<h3 class="no-mt">Contacto</h3>
 			<ul class="overview-list">
 				{socials.map((item) => (
 					<li>
@@ -63,7 +62,7 @@ const { Content: About } = await render(about!);
 		<Card>
 			<div class="header-container">
 				<Icon type='lucide' name="user" width={24} height={24} class='glow-icon' />
-				<h2>About me</h2>
+				<h2>Sobre mi</h2>
 			</div>
 			<div class="prose">
 				<About />
@@ -72,7 +71,7 @@ const { Content: About } = await render(about!);
 		<Card>
 			<div class="header-container">
 				<Icon type='lucide' name="rss" width={24} height={24} class='glow-icon' />
-				<h2>Latest Posts</h2>
+				<h2>Publicaciones recientes</h2>
 			</div>
 			<div class="content-container">
 				{posts.sort((a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime()).slice(0, 2).map((post) => (
@@ -89,7 +88,7 @@ const { Content: About } = await render(about!);
 		<Card>
 			<div class="header-container">
 				<Icon type='lucide' name="folder-git" width={24} height={24} class='glow-icon' />
-				<h2>Latest Projects</h2>
+				<h2>Proyectos recientes</h2>
 			</div>
 			<div class="content-container">
 				{projects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 2).map((project) => (
@@ -106,7 +105,7 @@ const { Content: About } = await render(about!);
 		<Card>
 			<div class="header-container">
 				<Icon type='lucide' name="briefcase-business" width={24} height={24} class='glow-icon' />
-				<h2>Work Experience</h2>
+				<h2>Experiencia Laboral</h2>
 			</div>
 			<div class="work-experience-container">
 				{workExperience.reverse().map((entry) => (

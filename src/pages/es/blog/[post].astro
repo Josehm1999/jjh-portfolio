@@ -1,9 +1,9 @@
 ---
-import "../../styles/article.css";
+import "../../../styles/article.css";
 
-import ImageGlow from "../../components/ImageGlow.astro";
-import Card from "../../components/Card.astro";
-import Layout from "../../layouts/Layout.astro";
+import ImageGlow from "../../../components/ImageGlow.astro";
+import Card from "../../../components/Card.astro";
+import Layout from "../../../layouts/Layout.astro";
 
 import type { GetStaticPaths } from "astro";
 import type { CollectionEntry } from "astro:content";
@@ -19,7 +19,7 @@ import { giscus } from "spectre:globals";
  *
  * @param post The post to estimate the reading time for
  */
-function timeToRead(post: CollectionEntry<"posts">): number {
+function timeToRead(post: CollectionEntry<"posts_es">): number {
 	const numWords = (post.body || "")
 		.replace(/.*\[(.*?)\].*/gm, "$1")
 		.replace(/```.*?```/gms, "")
@@ -36,14 +36,14 @@ function timeToRead(post: CollectionEntry<"posts">): number {
 }
 
 interface Props {
-	post: CollectionEntry<"posts">;
+	post: CollectionEntry<"posts_es">;
 }
 
 const { post } = Astro.props;
 
 export const getStaticPaths = (async () => {
 	const posts = await getCollection(
-		"posts",
+		"posts_es",
 		(post) => post.data.draft !== true,
 	);
 
@@ -57,7 +57,7 @@ const { Content, headings } = await render(post);
   title={post.data.title}
   description={post.data.description}
   image={post.data.image}
-  lang="en"
+  lang="es"
   article={{
     createdAt: post.data.createdAt,
     updatedAt: post.data.updatedAt,
@@ -65,7 +65,7 @@ const { Content, headings } = await render(post);
 >
   <div class="left" slot="left">
     <Card class="toc-card">
-      <h2 class="no-mt">Table of contents</h2>
+      <h2 class="no-mt">Tabla de contenidos</h2>
       <ol>
         <li class="toc-li">
           <a href={`#_top`} class="active">{post.data.title}</a>
@@ -125,7 +125,7 @@ const { Content, headings } = await render(post);
     )}
   </article>
 </Layout>
-<script src="../../scripts/toc.ts" />
+<script src="../../../scripts/toc.ts" />
 <style is:global>
   .toc-card ol {
     padding: 0;

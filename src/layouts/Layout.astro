@@ -1,16 +1,17 @@
 ---
-import '../styles/reset.css';
-import '../styles/globals.css';
+import "../styles/reset.css";
+import "../styles/globals.css";
 
-import Background from '../components/Background.astro';
-import Navbar from '../components/Navbar.astro';
-import LayoutGrid from '../components/LayoutGrid.astro';
-import { name, themeColor, twitterHandle } from 'spectre:globals';
+import Background from "../components/Background.astro";
+import Navbar from "../components/Navbar.astro";
+import LayoutGrid from "../components/LayoutGrid.astro";
+import { name, themeColor, twitterHandle } from "spectre:globals";
 
 interface Props {
 	title: string;
 	description?: string;
 	image?: ImageMetadata;
+	lang?: string;
 	pagefindIgnore?: boolean;
 	article?: {
 		createdAt: Date;
@@ -18,11 +19,12 @@ interface Props {
 	};
 }
 
-const { title, description, image, pagefindIgnore, article } = Astro.props;
+const { title, description, image, lang, pagefindIgnore, article } =
+	Astro.props;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -63,7 +65,7 @@ const { title, description, image, pagefindIgnore, article } = Astro.props;
 	</head>
 	<body>
 		<main data-pagefind-ignore={pagefindIgnore}>
-			<Navbar />
+            <Navbar lang={lang} />
 			<LayoutGrid>
 				<slot name="left" slot="left" />
 				<slot name="right" slot="right" />

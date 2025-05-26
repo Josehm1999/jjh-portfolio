@@ -1,19 +1,19 @@
 ---
-import "../styles/article-list.css";
+import "../../styles/article-list.css";
 
 import { getCollection } from "astro:content";
-import Card from "../components/Card.astro";
-import Icon from "../components/Icon.astro";
-import Layout from "../layouts/Layout.astro";
+import Card from "../../components/Card.astro";
+import Icon from "../../components/Icon.astro";
+import Layout from "../../layouts/Layout.astro";
 import { openGraph } from "spectre:globals";
 
-const projects = await getCollection("projects");
+const projects = await getCollection("projects_es");
 ---
 <Layout
-	title={openGraph.projects.title || "Projects"}
+	title={openGraph.projects.title || "Proyectos"}
 	description={openGraph.projects.description}
 	pagefindIgnore
-    lang='en'
+    lang="es"
 >
   <div class="layout-grid-left" slot="left">
     <Card class="flex-col-card">
@@ -21,7 +21,7 @@ const projects = await getCollection("projects");
 			<div class="stats-div">
 				<div class="stat">
 					<h3 class="text-glow">{projects.length}</h3>
-					<span>Project{projects.length > 1 ? 's' : ''}</span>
+					<span>Proyecto{projects.length > 1 ? 's' : ''}</span>
 				</div>
 			</div>
     </Card>
@@ -30,7 +30,7 @@ const projects = await getCollection("projects");
 		<Card>
 			<div class="header-container">
 				<Icon type='lucide' name="folder-git" width={24} height={24} class='glow-icon' />
-				<h2>Latest Projects</h2>
+				<h2>Proyectos Recientes</h2>
 			</div>
 			<div class="content-container">
 				{projects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).map((post) => (

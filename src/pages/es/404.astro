@@ -1,17 +1,17 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import Layout from "../../layouts/Layout.astro";
 ---
 
 <Layout
   title={"404"}
-  description={"This page could not be found."}
-  lang="en"
-  pagefindIgnore
+  description={"No se pudo encontrar la página."}
+  lang='es'
+	pagefindIgnore
 >
   <div class="notfound-container" slot="404">
     <h1 class="text-glow">404</h1>
-    <p>This page could not be found.</p>
-    <a class="block-link" href="/">← Back to the homepage</a>
+    <p>No se pudo encontrar la página.</p>
+    <a class="block-link" href="/">← Volver a la página de inicio</a>
   </div>
 </Layout>
 <style>

@@ -1,22 +1,24 @@
 ---
 import Icon from "./Icon.astro";
-import { name } from 'spectre:globals';
+import { name } from "spectre:globals";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 const path = Astro.url.pathname;
+const { lang } = Astro.props;
 ---
 <nav>
-  <a class="site-title" href="/">{name}</a>
+  <a class="site-title" href={getRelativeLocaleUrl(lang,'')}>{name}</a>
   <ul>
     <li>
-      <a href="/blog" class:list={{ active: path.startsWith('/blog') }}>Blog</a>
+      <a href={getRelativeLocaleUrl(lang,'blog')} class:list={{ active: path.startsWith(getRelativeLocaleUrl(lang,'blog')) }}>Blog</a>
     </li>
     <li class="nav-separator">/</li>
     <li>
-      <a href="/projects" class:list={{ active: path.startsWith('/projects') }}>Projects</a>
+      <a href={getRelativeLocaleUrl(lang,'projects')} class:list={{ active: path.startsWith(getRelativeLocaleUrl(lang,'projects')) }}>{ lang=='en' ? "Projects" : "Proyectos"}</a>
     </li>
     <li class="nav-separator">/</li>
     <li>
-      <input id="search" type="text" placeholder="Search (Ctrl+K)" />
+      <input id="search" type="text" placeholder={lang == "es" ? "Buscar (Ctrl+K)" : "Search (Ctrl+K)"} />
       <div id="search-results"></div>
     </li>
   </ul>
@@ -25,7 +27,7 @@ const path = Astro.url.pathname;
     <Icon type="lucide" name="x" width={24} height={24} class="menu-open" />
   </button>
 </nav>
-<script is:inline>
+<script is:inline define:vars={{lang}}>
   const searchElement = document.querySelector('#search');
   const results = document.querySelector('#search-results');
   const navToggle = document.querySelector('.mobile-nav-toggle');
@@ -76,7 +78,7 @@ const path = Astro.url.pathname;
   });
 
   searchElement?.addEventListener('blur', () => {
-    searchElement.placeholder = 'Search (Ctrl+K)';
+    searchElement.placeholder = lang == "es" ? 'Buscar (Ctrl+K)' : 'Search (Ctrl+K)';
   });
 
   searchElement?.addEventListener('blur', () => {
@@ -122,7 +124,7 @@ const path = Astro.url.pathname;
     }
 
     if (search.results.length === 0 && e.target.value.length > 0) {
-      results.innerHTML = '<p style="margin-top: 0;">No results found</p>';
+          results.innerHTML = `<p style="margin-top: 0;">${lang == 'es' ? "No se encontraron resultados" : "No results found"}</p>`;
     }
 
     results.classList.add('active');
@@ -135,9 +137,9 @@ const path = Astro.url.pathname;
 
   const handleTabletChange = () => {
     if (window.matchMedia('(max-width: 640px)').matches) {
-      searchElement.placeholder = 'Search';
+      searchElement.placeholder = lang == "es" ? "Buscar" : "Search";
     } else {
-      searchElement.placeholder = 'Search (Ctrl+K)';
+      searchElement.placeholder = lang == "es" ? "Buscar (Ctrl+K)" :'Search (Ctrl+K)';
     }
   }
 
