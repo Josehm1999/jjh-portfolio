@@ -6,6 +6,15 @@
       "name": "github"
     },
     "text": "GitHub",
-    "link": "https://github.com/louisescher/spectre"
+    "link": "https://github.com/Josehm1999/jjh-portfolio"
+  },
+  {
+    "id": 2,
+    "icon": {
+      "type": "lucide",
+      "name": "linkedin"
+    },
+    "text": "LinkedIn",
+    "link": "https://www.linkedin.com/in/jos%C3%A9-javier-hm/"
   }
 ]
