@@ -10,6 +10,7 @@ import { render } from "astro:content";
 import { getCollection } from "astro:content";
 import ImageGlow from "../../../components/ImageGlow.astro";
 import Icon from "../../../components/Icon.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 interface Props {
 	project: CollectionEntry<"projects_es">;
@@ -72,7 +73,7 @@ const { Content } = await render(project);
       </div>
       <Content />
       <hr class="end-of-article" />
-      <a href="/projects" class="block-link" data-pagefind-ignore>← Volver a proyectos</a>
+      <a href={getRelativeLocaleUrl('es','projects')} class="block-link" data-pagefind-ignore>← Volver a proyectos</a>
     </Card>
   </article>
 </Layout>

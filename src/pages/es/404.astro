@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { getRelativeLocaleUrl } from "astro:i18n";
 ---
 
 <Layout
@@ -11,7 +12,7 @@ import Layout from "../../layouts/Layout.astro";
   <div class="notfound-container" slot="404">
     <h1 class="text-glow">404</h1>
     <p>No se pudo encontrar la página.</p>
-    <a class="block-link" href="/">← Volver a la página de inicio</a>
+    <a class="block-link" href={getRelativeLocaleUrl('es','')}>← Volver a la página de inicio</a>
   </div>
 </Layout>
 <style>

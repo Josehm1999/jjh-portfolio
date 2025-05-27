@@ -6,6 +6,7 @@ import Card from "../../components/Card.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import { openGraph } from "spectre:globals";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 const posts = await getCollection(
 	"posts_es",
@@ -21,13 +22,13 @@ const tags = posts.flatMap((post) => post.data.tags.map((tag) => tag.id));
 >
   <div class="layout-grid-left" slot="left">
     <Card class="flex-col-card">
-      <h2 class="no-mt">Filter</h2>
+      <h2 class="no-mt">Filtro</h2>
       <ul class="tags-list">
         {Array.from(new Set(tags)).map((tag) => (
           <li>
             <a
               class="blog-tag"
-              href="/blog"
+              href={getRelativeLocaleUrl('es', 'blog')}
               data-tag={tag}
             >
               {tag}
@@ -45,7 +46,7 @@ const tags = posts.flatMap((post) => post.data.tags.map((tag) => tag.id));
 			</div>
 			<div class="content-container">
 				{posts.sort((a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime()).map((post) => (
-					<a href={`/blog/${post.id}`} class="post-container" data-tags={post.data.tags.map((tag) => tag.id).join(",")}>
+                <a href={getRelativeLocaleUrl('es', `blog/${post.id}`)} class="post-container" data-tags={post.data.tags.map((tag) => tag.id).join(",")}>
 						<div class="post-header">
 							<h3>{post.data.title}</h3>
 							<span class="post-date">{post.data.createdAt.toLocaleDateString()}</span>
@@ -71,9 +72,9 @@ const tags = posts.flatMap((post) => post.data.tags.map((tag) => tag.id));
     }
 
     if (active) {
-      tag.href = `/blog?tags=${currentTags?.filter((t) => t !== tag.dataset.tag).join(',')}`;
+          tag.href = `/es/blog?tags=${currentTags?.filter((t) => t !== tag.dataset.tag).join(',')}`;
     } else {
-      tag.href = `/blog?tags=${currentTags ? [...currentTags, tag.dataset.tag].join(',') : tag.dataset.tag}`;
+          tag.href = `/es/blog?tags=${currentTags ? [...currentTags, tag.dataset.tag].join(',') : tag.dataset.tag}`;
     }
   });
 

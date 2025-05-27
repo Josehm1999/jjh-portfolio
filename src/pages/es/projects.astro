@@ -6,6 +6,7 @@ import Card from "../../components/Card.astro";
 import Icon from "../../components/Icon.astro";
 import Layout from "../../layouts/Layout.astro";
 import { openGraph } from "spectre:globals";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 const projects = await getCollection("projects_es");
 ---
@@ -17,7 +18,7 @@ const projects = await getCollection("projects_es");
 >
   <div class="layout-grid-left" slot="left">
     <Card class="flex-col-card">
-      <h2 class="no-mt">Stats</h2>
+      <h2 class="no-mt">Estadísticas</h2>
 			<div class="stats-div">
 				<div class="stat">
 					<h3 class="text-glow">{projects.length}</h3>
@@ -34,7 +35,7 @@ const projects = await getCollection("projects_es");
 			</div>
 			<div class="content-container">
 				{projects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).map((post) => (
-					<a href={`/projects/${post.id}`} class="post-container">
+                <a href={getRelativeLocaleUrl('es', `projects/${post.id}`)} class="post-container">
 						<div class="post-header">
 							<h3>{post.data.title}</h3>
 							<span class="post-date">{post.data.date.toLocaleDateString()}</span>

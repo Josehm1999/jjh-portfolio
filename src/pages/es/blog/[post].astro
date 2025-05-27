@@ -10,6 +10,7 @@ import type { CollectionEntry } from "astro:content";
 import { render } from "astro:content";
 import { getCollection } from "astro:content";
 import { giscus } from "spectre:globals";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 /**
  * Estimates the time it takes to read a post in minutes based on:
@@ -97,7 +98,7 @@ const { Content, headings } = await render(post);
       </div>
       <Content />
       <hr class="end-of-article" />
-      <a href="/blog" class="block-link" data-pagefind-ignore>← Back to blog</a>
+      <a href={getRelativeLocaleUrl('es','blog')} class="block-link" data-pagefind-ignore>← Volver al blog</a>
     </Card>
     {giscus && (
       <Card>

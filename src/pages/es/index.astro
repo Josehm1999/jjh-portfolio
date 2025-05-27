@@ -1,25 +1,27 @@
 ---
-import '../../styles/index.css';
+import "../../styles/index.css";
 
-import ProfilePicture from '../../assets/pfp.png';
+import ProfilePicture from "../../assets/pfp.png";
 
-import Card from '../../components/Card.astro';
-import Layout from '../../layouts/Layout.astro';
-import ImageGlow from '../../components/ImageGlow.astro';
-import Icon from '../../components/Icon.astro';
-import { getCollection } from 'astro:content';
-import { getEntry } from 'astro:content';
-import { render } from 'astro:content';
-import { name, openGraph } from 'spectre:globals';
+import Card from "../../components/Card.astro";
+import Layout from "../../layouts/Layout.astro";
+import ImageGlow from "../../components/ImageGlow.astro";
+import Icon from "../../components/Icon.astro";
+import { getCollection } from "astro:content";
+import { getEntry } from "astro:content";
+import { render } from "astro:content";
+import { name, openGraph } from "spectre:globals";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
-const [posts, projects, about, workExperience, quickInfo, socials] = await Promise.all([
-	getCollection('posts_es', (post) => post.data.draft !== true),
-	getCollection('projects_es'),
-	getEntry('other_es', 'about_es'),
-	getCollection('workExperience_es'),
-	getCollection('quickInfo_es'),
-	getCollection('socials')
-]);
+const [posts, projects, about, workExperience, quickInfo, socials] =
+	await Promise.all([
+		getCollection("posts_es", (post) => post.data.draft !== true),
+		getCollection("projects_es"),
+		getEntry("other_es", "about_es"),
+		getCollection("workExperience_es"),
+		getCollection("quickInfo_es"),
+		getCollection("socials"),
+	]);
 
 // biome-ignore lint/style/noNonNullAssertion: Should always be defined.
 const { Content: About } = await render(about!);
@@ -75,7 +77,7 @@ const { Content: About } = await render(about!);
 			</div>
 			<div class="content-container">
 				{posts.sort((a, b) => b.data.createdAt.getTime() - a.data.createdAt.getTime()).slice(0, 2).map((post) => (
-					<a href={`/blog/${post.id}`} class="post-container">
+                <a href={getRelativeLocaleUrl('es',`blog/${post.id}`)} class="post-container">
 						<div class="post-header">
 							<h3>{post.data.title}</h3>
 							<span class="post-date">{post.data.createdAt.toLocaleDateString()}</span>
@@ -92,7 +94,7 @@ const { Content: About } = await render(about!);
 			</div>
 			<div class="content-container">
 				{projects.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 2).map((project) => (
-					<a href={`/projects/${project.id}`} class="post-container">
+					<a href={getRelativeLocaleUrl('es',`projects/${project.id}`)} class="post-container">
 						<div class="post-header">
 							<h3>{project.data.title}</h3>
 							<span class="post-date">{project.data.date.toLocaleDateString()}</span>

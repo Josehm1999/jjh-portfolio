@@ -5,6 +5,9 @@ import { getRelativeLocaleUrl } from "astro:i18n";
 
 const path = Astro.url.pathname;
 const { lang } = Astro.props;
+const currentPath = lang === "en" ? path : path.replace(`/${lang}`, "");
+const alternateLanguage = lang === "en" ? "es" : "en";
+const alternateUrl = getRelativeLocaleUrl(alternateLanguage, currentPath);
 ---
 <nav>
   <a class="site-title" href={getRelativeLocaleUrl(lang,'')}>{name}</a>
@@ -15,6 +18,10 @@ const { lang } = Astro.props;
     <li class="nav-separator">/</li>
     <li>
       <a href={getRelativeLocaleUrl(lang,'projects')} class:list={{ active: path.startsWith(getRelativeLocaleUrl(lang,'projects')) }}>{ lang=='en' ? "Projects" : "Proyectos"}</a>
+    </li>
+    <li class="nav-separator">/</li>
+    <li >
+      <a href={alternateUrl} style="display: flex; align-items: center; gap: 0.5rem;"> <Icon type="lucide" name="languages" width={24} height={24} />{ lang=='en' ? "English" : "Español"}</a>        
     </li>
     <li class="nav-separator">/</li>
     <li>
