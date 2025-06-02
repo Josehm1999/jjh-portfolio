@@ -1,0 +1,8 @@
+{
+	"origins": [
+		"https://sleepyduck.dev",
+		"https://jjh-portfolio.josehm1999.workers.dev"
+	],
+	"originsRegex": ["https://.*-jjh-portfolio\\.josehm1999\\.workers\\.dev"],
+	"defaultCommentOrder": "oldest"
+}

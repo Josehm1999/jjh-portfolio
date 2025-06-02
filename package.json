@@ -1,32 +1,37 @@
 {
-  "name": "jjh-portfolio",
-  "type": "module",
-  "version": "1.0.2",
-  "packageManager": "pnpm@9.15.0",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "start": "node dist/server/entry.mjs",
-    "preview": "astro preview",
-    "astro": "astro",
-    "postbuild": "pagefind --site dist/client"
-  },
-  "dependencies": {
-    "@astrojs/mdx": "^4.2.0",
-    "@astrojs/node": "^9.1.3",
-    "@astrojs/sitemap": "^3.2.1",
-    "@iconify-json/lucide": "^1.2.20",
-    "@iconify-json/simple-icons": "^1.2.18",
-    "@iconify/utils": "^2.2.1",
-    "@shikijs/themes": "^1.26.1",
-    "astro": "^5.5.2",
-    "astro-expressive-code": "^0.38.3",
-    "sharp": "^0.33.5"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "pagefind": "^1.3.0",
-    "shiki": "^1.26.1",
-    "wrangler": "^4.18.0"
-  }
+	"name": "jjh-portfolio",
+	"type": "module",
+	"version": "1.0.2",
+	"packageManager": "pnpm@9.15.0",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"start": "node dist/server/entry.mjs",
+		"preview": "astro build && wrangler dev",
+		"deploy": "astro build && pagefind --site dist && wrangler deploy",
+		"cf-typegen": "wrangler types",
+		"astro": "astro",
+		"postbuild": "pagefind --site dist"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^12.5.3",
+		"@astrojs/mdx": "^4.2.0",
+		"@astrojs/node": "^9.1.3",
+		"@astrojs/sitemap": "^3.2.1",
+		"@iconify-json/lucide": "^1.2.20",
+		"@iconify-json/simple-icons": "^1.2.18",
+		"@iconify/utils": "^2.2.1",
+		"@shikijs/themes": "^1.26.1",
+		"astro": "^5.8.1",
+		"astro-expressive-code": "^0.38.3",
+		"dotenv": "^16.5.0",
+		"sharp": "^0.33.5"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/node": "^22.15.29",
+		"pagefind": "^1.3.0",
+		"shiki": "^1.26.1",
+		"wrangler": "^4.18.0"
+	}
 }

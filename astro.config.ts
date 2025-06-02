@@ -1,16 +1,44 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 import expressiveCode from "astro-expressive-code";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import spectre from "./package/src";
-
-import node from "@astrojs/node";
+import dotenv from "dotenv";
+import cloudflare from "@astrojs/cloudflare";
 import { spectreDark } from "./src/ec-theme";
+
+dotenv.config();
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://portfolio.sleepyduck.dev",
+  env: {
+    schema: {
+      SITE_URL: envField.string({
+        context: "client",
+        access: "public",
+        optional: false,
+      }),
+    },
+  },
+  vite: {
+    ssr: {
+      noExternal: ["dotenv", "@astrojs/cloudflare"],
+      target: "webworker",
+      external: [
+        "path",
+        "fs",
+        "url",
+        "module",
+        "crypto",
+        "os",
+        "child_process",
+        "util",
+        "net",
+      ],
+    },
+  },
+  site: process.env.SITE_URL,
   output: "static",
   i18n: {
     defaultLocale: "en",
@@ -29,8 +57,8 @@ export default defineConfig({
       name: "José HM",
       openGraph: {
         home: {
-          title: "Spectre",
-          description: "Jose HM portfolio using the Spectre them for Astro.",
+          title: "José HM",
+          description: "Jose HM portfolio using the Spectre theme for Astro.",
         },
         blog: {
           title: "Blog",
@@ -49,12 +77,13 @@ export default defineConfig({
         strict: true,
         reactionsEnabled: true,
         emitMetadata: false,
-        lang: "es",
+        lang: "en",
       },
     }),
   ],
-  adapter: node({
-    mode: "standalone",
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
   }),
 });
-
