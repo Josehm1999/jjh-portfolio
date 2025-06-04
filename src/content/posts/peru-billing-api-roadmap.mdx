@@ -1,0 +1,175 @@
+---
+title: "Peruvian Electronic Billing API"
+description: "Peruvian Electronic Billing API (Go/Chi, Multi-Tenant Turso)"
+createdAt: 04-06-2025
+draft: false
+tags:
+  - guide
+---
+
+Project Roadmap: Peruvian Electronic Billing API (Go/Chi, Multi-Tenant Turso)
+
+Project Goal: Develop a RESTful API for Peruvian electronic billing (Facturación Electrónica), handling validation, XML generation, digital signature, SUNAT communication, and secure storage, with a multi-tenant database approach.
+
+Key Tools: Go, Chi, Turso (SQLite), go-playground/validator, encoding/xml, go-pkcs12, moov-io/signedxml (or goxmldsig), terminalstatic/go-xsd-validate, wamuir/go-xslt, archive/zip, Enflick/gosoap, aws-sdk-go-v2, GORM/sqlc.
+Phase 1: Core API & Project Foundation
+
+Objective: Establish the basic API structure, configuration, and a working central database for tenant management.
+
+    1.1. Project Setup:
+        Initialize Go module (go mod init).
+        Create cmd/api/main.go and internal/server directories.
+        Set up basic Chi server in internal/server/server.go and routes.go.
+        Implement basic HTTP server start/stop logic.
+        Configure Makefile for run, build, test.
+    1.2. Configuration Management:
+        Set up configs/config.yaml for application settings.
+        Integrate a configuration library (e.g., spf13/viper) to load settings from YAML and environment variables.
+        Define initial config structs: API port, environment, Turso API key, central DB connection string.
+    1.3. Central Database for Multi-Tenancy:
+        Set up internal/database/central package.
+        Define models.go for Tenant and APIKey (hashed).
+        Initialize db.go for connection to your central Turso database (or other chosen central DB).
+        Implement repo.go methods for CreateTenant, GetTenantByAPIKey.
+        Write a simple script/command in cmd/api/main.go or a separate cmd/admin to seed/create a test tenant.
+    1.4. Basic Health Check Endpoint:
+        Add a /health endpoint in internal/handlers and internal/server/routes.go to confirm the API is running and can connect to the central database.
+
+Phase 2: Authentication & Multi-Tenant Database Resolution
+
+Objective: Secure the API with API keys and dynamically connect to the correct tenant's database.
+
+    2.1. API Key Authentication Middleware:
+        Develop internal/auth/middleware.go.
+        Implement a Chi middleware that:
+            Extracts API key from header.
+            Queries internal/database/central/repo to validate the API key and retrieve tenant details (including tenant Turso DB URL/token).
+            Returns 401 Unauthorized if invalid.
+        Apply this middleware to all secure routes in internal/server/routes.go.
+    2.2. Tenant Database Manager:
+        Develop internal/database/tenant/manager.go.
+        Implement a manager struct that:
+            Takes the Turso API key from config.
+            Has methods like GetTenantDB(tenantID string, dbURL string, dbToken string) (*sql.DB, error).
+            Internally caches *sql.DB connections for active tenants to avoid re-opening connections.
+            Uses the Turso SDK (or direct HTTP calls) for programmatic database creation/management if building an admin interface for tenant signup.
+        Crucial: Ensure the GetTenantDB method returns a ready-to-use *sql.DB connection for the specific tenant.
+    2.3. Context Integration:
+        Define internal/types/context_keys.go for TenantIDKey and TenantDBClientKey.
+        Modify internal/auth/middleware.go to store TenantID and the resolved tenant *sql.DB connection in the context.Context after successful authentication.
+    2.4. Tenant Database Migrations:
+        Implement schema definition for the tenant-specific tables (e.g., invoices, cdr_responses).
+        Add logic in internal/database/tenant/db.go (or in your manager.go) to apply these migrations when a new tenant database is provisioned or on application startup/migration command.
+
+Phase 3: Inbound Request Processing (Validation, XML, Signature)
+
+Objective: Handle incoming billing requests, validate them, convert to UBL XML, and apply digital signatures.
+
+    3.1. Billing Request Models & Handler:
+        Define internal/billing/models.go for the incoming JSON request structure.
+        Create internal/handlers/billing_handler.go with a handler for the /billing endpoint (e.g., POST /v1/billing/invoice).
+        This handler will receive the JSON, extract the tenant DB client from context, and pass the request to internal/billing/service.go.
+    3.2. Request Validation:
+        Set up internal/pkg/validation/request_validator.go using go-playground/validator.
+        Integrate this into the billing_handler to validate the incoming JSON request against predefined rules.
+    3.3. JSON to UBL XML Conversion:
+        Create internal/pkg/json_to_xml/converter.go.
+        Define internal/pkg/sunat_models/ubl21.go with Go structs tagged for encoding/xml to represent the UBL 2.1 XML structure. This is the most complex data modeling part.
+        Implement logic to map the validated incoming JSON request into these UBL Go structs and then marshal them into an XML string.
+    3.4. Digital Certificate Loading:
+        Develop internal/pkg/certs/loader.go using go-pkcs12 to load the private key and certificate chain from .p12 files.
+        Store certificate paths in configs/config.yaml and .p12 files in tmp/certs (or a secure secrets manager in production).
+    3.5. XML Digital Signature:
+        Implement internal/pkg/digital_signature/signer.go.
+        Integrate moov-io/signedxml (or goxmldsig) to apply the XMLDSig signature to the UBL XML document.
+        Ensure the signature is placed correctly within the <ext:UBLExtension/ext:ExtensionContent> as required by SUNAT.
+
+Phase 4: Outbound Processing (XSD, XSLT, Zipping, SOAP)
+
+Objective: Validate the signed XML, apply transformations, package it, and send it to SUNAT via SOAP.
+
+    4.1. XSD Validation:
+        Set up internal/pkg/validation/xsd_validator.go using terminalstatic/go-xsd-validate.
+        Load SUNAT's XSD schemas from tmp/xsd (downloaded from SUNAT's portal).
+        Implement validation of the signed UBL XML against these schemas.
+    4.2. XSLT Transformations (if needed):
+        Implement internal/pkg/validation/xslt_transformer.go using wamuir/go-xslt.
+        Load XSLT files from tmp/xslt.
+        Apply any necessary XSLT transformations to the XML (e.g., for specific SUNAT requirements or internal processing).
+    4.3. XML Zipping:
+        Create internal/pkg/zipper/zipper.go using Go's archive/zip package.
+        Implement logic to zip the final XML file, typically naming it with the RUC, document type, and series/number.
+    4.4. SUNAT SOAP Client:
+        Develop internal/pkg/soap_client/client.go.
+        Integrate Enflick/gosoap.
+        Implement the SOAP request structure for SUNAT's WebService (e.g., sendBill, sendSummary, sendPack).
+        Crucial: Implement WS-Security UsernameToken header manipulation. This might require custom code if gosoap doesn't provide direct support. You'll need to concatenate RUC + User (from config) for the Username and use the Clave SOL password.
+        Configure SUNAT WSDL URLs in configs/config.yaml for both beta and production.
+
+Phase 5: Response Handling & Storage
+
+Objective: Process SUNAT's response, store results in the tenant database, and media files in object storage.
+
+    5.1. SUNAT Response Handling:
+        Within internal/pkg/soap_client/client.go, parse SUNAT's SOAP response.
+        Extract the CDR (Constancia de Recepción) XML and any other relevant data (e.g., status, error codes).
+    5.2. Tenant Database Storage:
+        In internal/database/tenant/repositories.go, add methods to save:
+            Initial invoice request metadata.
+            The current status of the billing process (e.g., PENDING, SIGNED, SENT, ACCEPTED, REJECTED).
+            Relevant SUNAT response details (CDR content, status code).
+            References (URLs) to files stored in object storage.
+    5.3. Object Storage Integration:
+        Set up internal/pkg/object_storage/storage.go using aws-sdk-go-v2.
+        Implement methods to upload:
+            The original JSON request.
+            The generated (and signed) UBL XML.
+            The SUNAT CDR XML.
+            The PDF representation (if generated by a separate service or internally).
+        Ensure proper file naming conventions (e.g., {tenant_id}/{document_type}/{invoice_id}/{timestamp}.xml).
+    5.4. PDF Generation (Optional, Phase 6):
+        Decide if you will generate PDFs internally (more complex, consider a library like unidoc/unipdf or jung-kurt/gofpdf) or if this will be a separate service. For a side project, initially consider relying on the XML or a separate tool.
+    5.5. Status Update Endpoint:
+        Add internal/handlers/status_handler.go to allow users to query the status of their submitted billing documents using the internal/database/tenant/repositories.go.
+
+Phase 6: Robustness, Monitoring & Asynchronous Processing
+
+Objective: Make the API more robust, observable, and handle long-running tasks gracefully.
+
+    6.1. Comprehensive Error Handling:
+        Define custom errors in internal/types/errors.go for specific API issues (e.g., ValidationError, SunatError, InternalServerError).
+        Implement consistent error responses for API clients.
+        Add structured logging (e.g., zap or logrus) throughout the application for debugging and operational insights.
+    6.2. Asynchronous Queueing (for background tasks):
+        Integrate hibiken/asynq (or similar) in cmd/api/main.go and internal/billing/service.go.
+        Refactor the billing workflow:
+            The HTTP handler receives the request, performs initial validation, saves a "PENDING" status to the tenant DB, and pushes the request to a Redis-backed queue.
+            A separate worker process (part of the same Go binary, or a distinct process) consumes from the queue and performs the heavy lifting (XML, signing, SOAP call, database updates, object storage).
+            This decouples the API response from long-running operations.
+    6.3. Metrics & Monitoring:
+        Integrate Prometheus metrics (e.g., prometheus/client_golang) to expose API request counts, latencies, error rates, and queue sizes.
+        Set up basic alerting.
+    6.4. Retries & Idempotency:
+        Implement retry logic for external calls (SOAP to SUNAT, Turso API calls, S3/R2 uploads) with backoff.
+        Design for idempotency where possible to prevent duplicate processing if retries occur.
+
+Phase 7: Testing & Deployment
+
+Objective: Ensure correctness, stability, and prepare for production.
+
+    7.1. Unit Tests:
+        Write unit tests for all internal/pkg components (json_to_xml, digital_signature, soap_client, validation, etc.).
+        Write unit tests for internal/billing/service with mocks for external dependencies.
+    7.2. Integration Tests:
+        Write integration tests for handlers (internal/handlers) to verify API responses and interaction with internal/billing/service.
+        Test the internal/database layers against a real (test) central and tenant database.
+        Crucial: Plan for testing the SUNAT SOAP integration. This will likely involve using SUNAT's beta/test environment (homologación) extensively, as direct production testing is not feasible.
+    7.3. End-to-End Tests:
+        Simulate a full billing request from API call to successful storage and SUNAT response.
+    7.4. Dockerization:
+        Create a Dockerfile for your Go application.
+        Include necessary libxml2 and libxslt dependencies via a multi-stage build.
+    7.5. Deployment Strategy:
+        Choose your deployment platform (Render, Fly.io, etc.).
+        Configure environment variables for production secrets.
+        Set up CI/CD pipeline (e.g., GitHub Actions) for automated testing and deployment.
